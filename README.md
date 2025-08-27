@@ -1,3 +1,5 @@
+![MicroScope Banner](Resources/banner.png)
+
 # MicroScope: STM32F429I-Discovery Oscilloscope
 
 MicroScope is a simple oscilloscope project for the STM32F429I-Discovery board. It samples analog signals, performs FFT analysis, and displays waveforms and spectra on the onboard LCD.
