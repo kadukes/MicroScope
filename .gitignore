@@ -1,0 +1,5 @@
+# STM32CubeIDE settings
+.settings
+
+# Build artifacts
+Debug
