@@ -46,6 +46,9 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
+HCD_HandleTypeDef hhcd_USB_OTG_HS;
+LTDC_HandleTypeDef hltdc;
+DMA2D_HandleTypeDef hdma2d;
 
 osThreadId samplingTaskHandle;
 osThreadId triggerTaskHandle;
