@@ -46,24 +46,9 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
-
-CRC_HandleTypeDef hcrc;
-
-DMA2D_HandleTypeDef hdma2d;
-
-I2C_HandleTypeDef hi2c3;
-
-LTDC_HandleTypeDef hltdc;
-
-SPI_HandleTypeDef hspi5;
-
-TIM_HandleTypeDef htim1;
-
-UART_HandleTypeDef huart1;
-
 HCD_HandleTypeDef hhcd_USB_OTG_HS;
-
-SDRAM_HandleTypeDef hsdram1;
+LTDC_HandleTypeDef hltdc;
+DMA2D_HandleTypeDef hdma2d;
 
 osThreadId samplingTaskHandle;
 osThreadId triggerTaskHandle;
@@ -176,24 +161,24 @@ int main(void)
   triggerTaskHandle = osThreadCreate(osThread(triggerTask), NULL);
 
   /* definition and creation of analysisTask */
-  osThreadDef(analysisTask, startAnalysisTask, osPriorityNormal, 0, 1024);
+  osThreadDef(analysisTask, startAnalysisTask, osPriorityBelowNormal, 0, 1024);
   analysisTaskHandle = osThreadCreate(osThread(analysisTask), NULL);
 
   /* definition and creation of timeDomainVisua */
-  osThreadDef(timeDomainVisua, startTimeDomainVisualizationTask, osPriorityAboveNormal, 0, 1024);
+  osThreadDef(timeDomainVisua, startTimeDomainVisualizationTask, osPriorityNormal, 0, 1024);
   timeDomainVisuaHandle = osThreadCreate(osThread(timeDomainVisua), NULL);
 
   /* definition and creation of pdsVisualizatio */
-  osThreadDef(pdsVisualizatio, startPdsVisualization, osPriorityNormal, 0, 1024);
+  osThreadDef(pdsVisualizatio, startPdsVisualization, osPriorityBelowNormal, 0, 1024);
   pdsVisualizatioHandle = osThreadCreate(osThread(pdsVisualizatio), NULL);
 
   /* definition and creation of DSRTask */
-  osThreadDef(DSRTask, startDSRTask, osPriorityBelowNormal, 0, 1024);
+  osThreadDef(DSRTask, startDSRTask, osPriorityAboveNormal, 0, 1024);
   DSRTaskHandle = osThreadCreate(osThread(DSRTask), NULL);
 
   /* definition and creation of triggerVisualiz */
-  osThreadDef(triggerVisualiz, startTriggerVisualization, osPriorityRealtime, 0, 1024);
-  triggerVisualizHandle = osThreadCreate(osThread(triggerVisualiz), NULL);
+  osThreadDef(triggerVisualizationTask, startTriggerVisualization, osPriorityHigh, 0, 1024);
+  triggerVisualizHandle = osThreadCreate(osThread(triggerVisualizationTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
