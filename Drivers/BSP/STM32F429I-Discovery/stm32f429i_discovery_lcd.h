@@ -204,6 +204,7 @@ void     BSP_LCD_DisplayChar(uint16_t Xpos, uint16_t Ypos, uint8_t Ascii);
 void     BSP_LCD_DrawHLine(uint16_t Xpos, uint16_t Ypos, uint16_t Length);
 void     BSP_LCD_DrawVLine(uint16_t Xpos, uint16_t Ypos, uint16_t Length);
 void     BSP_LCD_DrawLine(uint16_t X1, uint16_t Y1, uint16_t X2, uint16_t Y2);
+void     BSP_LCD_DrawLineUpdatingBuffer(uint16_t X1, uint16_t Y1, uint16_t X2, uint16_t Y2);
 void     BSP_LCD_DrawRect(uint16_t Xpos, uint16_t Ypos, uint16_t Width, uint16_t Height);
 void     BSP_LCD_DrawCircle(uint16_t Xpos, uint16_t Ypos, uint16_t Radius);
 void     BSP_LCD_DrawPolygon(pPoint Points, uint16_t PointCount);
@@ -226,6 +227,9 @@ void    BSP_LCD_MspInit(void);
 /**
   * @}
   */
+#define MAX_PLOT_PIXELS 4096
+extern Point plotPixels[MAX_PLOT_PIXELS];
+extern uint16_t plotPixelCount;
 
 /**
   * @}

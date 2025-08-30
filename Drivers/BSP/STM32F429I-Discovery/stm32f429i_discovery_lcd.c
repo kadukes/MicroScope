@@ -114,6 +114,8 @@ LCD_DrvTypeDef  *LcdDrv;
 /**
   * @}
   */
+Point plotPixels[MAX_PLOT_PIXELS];
+uint16_t plotPixelCount = 0;
 
 /** @defgroup STM32F429I_DISCOVERY_LCD_Private_FunctionPrototypes STM32F429I DISCOVERY LCD Private FunctionPrototypes
   * @{
@@ -750,6 +752,84 @@ void BSP_LCD_DrawLine(uint16_t X1, uint16_t Y1, uint16_t X2, uint16_t Y2)
 
   for (curpixel = 0; curpixel <= numpixels; curpixel++)
   {
+    BSP_LCD_DrawPixel(x, y, DrawProp[ActiveLayer].TextColor);   /* Draw the current pixel */
+    num += numadd;                            /* Increase the numerator by the top of the fraction */
+    if (num >= den)                           /* Check if numerator >= denominator */
+    {
+      num -= den;                             /* Calculate the new numerator value */
+      x += xinc1;                             /* Change the x as appropriate */
+      y += yinc1;                             /* Change the y as appropriate */
+    }
+    x += xinc2;                               /* Change the x as appropriate */
+    y += yinc2;                               /* Change the y as appropriate */
+  }
+}
+
+/**
+  * @brief  Displays an uni-line (between two points) updating a pixel buffer containing the drawn pixels.
+  * @param  X1: the point 1 X position
+  * @param  Y1: the point 1 Y position
+  * @param  X2: the point 2 X position
+  * @param  Y2: the point 2 Y position
+  */
+void BSP_LCD_DrawLineUpdatingBuffer(uint16_t X1, uint16_t Y1, uint16_t X2, uint16_t Y2)
+{
+  int16_t deltax = 0, deltay = 0, x = 0, y = 0, xinc1 = 0, xinc2 = 0,
+          yinc1 = 0, yinc2 = 0, den = 0, num = 0, numadd = 0, numpixels = 0,
+          curpixel = 0;
+
+  deltax = ABS(X2 - X1);        /* The difference between the x's */
+  deltay = ABS(Y2 - Y1);        /* The difference between the y's */
+  x = X1;                       /* Start x off at the first pixel */
+  y = Y1;                       /* Start y off at the first pixel */
+
+  if (X2 >= X1)                 /* The x-values are increasing */
+  {
+    xinc1 = 1;
+    xinc2 = 1;
+  }
+  else                          /* The x-values are decreasing */
+  {
+    xinc1 = -1;
+    xinc2 = -1;
+  }
+
+  if (Y2 >= Y1)                 /* The y-values are increasing */
+  {
+    yinc1 = 1;
+    yinc2 = 1;
+  }
+  else                          /* The y-values are decreasing */
+  {
+    yinc1 = -1;
+    yinc2 = -1;
+  }
+
+  if (deltax >= deltay)         /* There is at least one x-value for every y-value */
+  {
+    xinc1 = 0;                  /* Don't change the x when numerator >= denominator */
+    yinc2 = 0;                  /* Don't change the y for every iteration */
+    den = deltax;
+    num = deltax / 2;
+    numadd = deltay;
+    numpixels = deltax;         /* There are more x-values than y-values */
+  }
+  else                          /* There is at least one y-value for every x-value */
+  {
+    xinc2 = 0;                  /* Don't change the x for every iteration */
+    yinc1 = 0;                  /* Don't change the y when numerator >= denominator */
+    den = deltay;
+    num = deltay / 2;
+    numadd = deltax;
+    numpixels = deltay;         /* There are more y-values than x-values */
+  }
+
+  for (curpixel = 0; curpixel <= numpixels; curpixel++)
+  {
+    if (plotPixelCount < MAX_PLOT_PIXELS)
+    {
+      plotPixels[plotPixelCount++] = (Point){x, y};
+    }
     BSP_LCD_DrawPixel(x, y, DrawProp[ActiveLayer].TextColor);   /* Draw the current pixel */
     num += numadd;                            /* Increase the numerator by the top of the fraction */
     if (num >= den)                           /* Check if numerator >= denominator */
