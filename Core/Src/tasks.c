@@ -135,6 +135,7 @@ enum ClickAction decode_click(uint16_t x, uint16_t y)
 
 /**
   * @brief  Function implementing the samplingTask thread.
+  * WOET: ~50µs
   * @param  argument: Not used
   * @retval None
   */
@@ -157,6 +158,7 @@ void startSamplingTask(void const * argument)
 
 /**
 * @brief Function implementing the triggerTask thread.
+* WOET: ~50µs
 * @param argument: Not used
 * @retval None
 */
@@ -185,13 +187,15 @@ void startTriggerTask(void const * argument)
 			xTaskNotifyGive(triggerVisualizHandle);
 		}
 	}
-    vTaskDelayUntil(&xLastWakeTime, xPeriod);
+
+	vTaskDelayUntil(&xLastWakeTime, xPeriod);
   }
 }
 
 
 /**
 * @brief Function implementing the analysisTask thread.
+* WOET: 5ms
 * @param argument: Not used
 * @retval None
 */
@@ -209,7 +213,8 @@ void startAnalysisTask(void const * argument)
 
 
 /**
-* @brief Function implementing the timeDomainVisua thread.
+* @brief Function implementing the timeDomainVisualization thread.
+* WOET: 68ms
 * @param argument: Not used
 * @retval None
 */
@@ -228,13 +233,15 @@ void startTimeDomainVisualizationTask(void const * argument)
 	{
 		plot(s_time_domain, TIME_DOMAIN_LENGTH, LCD_COLOR_YELLOW, LCD_COLOR_BLACK);
 	}
+
     vTaskDelayUntil(&xLastWakeTime, xPeriod);
   }
 }
 
 
 /**
-* @brief Function implementing the pdsVisualizatio thread.
+* @brief Function implementing the pdsVisualization thread.
+* WOET: 68ms
 * @param argument: Not used
 * @retval None
 */
@@ -317,7 +324,7 @@ void startDSRTask(void const * argument)
 
 
 /**
-* @brief Function implementing the triggerVisualiz thread.
+* @brief Function implementing the triggerVisualization thread.
 * @param argument: Not used
 * @retval None
 */
