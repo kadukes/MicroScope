@@ -281,22 +281,20 @@ void startDSRTask(void const * argument)
 		if (ts.TouchDetected)
 	    {
 	      enum ClickAction a = decode_click(ts.X, 320 - ts.Y);
+	      enum AppState prevState = g_state;
 	      switch (a)
 	      {
 	      case DisplayTime:
 	    	  g_state = (g_state | 0b000001) & ~0b000010;
-	    	  plot_drawCoordSystem();
 	    	  break;
 	      case DisplayPDS:
 	    	  g_state = (g_state | 0b000010) & ~0b000001;
 	    	  foundTrigger = 0;
-	    	  plot_drawCoordSystem();
 	    	  break;
 	      case TriggerOn:
-          if (g_state & 0b000001)  // g_state display time
+	    	  if (g_state & 0b000001)  // g_state display time
 	    	  {
 	    		  g_state = (g_state | 0b000100) & ~0b001000;
-	    		  plot_drawCoordSystem();
 	    	  }
 	    	  break;
 	      case TriggerOff:
@@ -304,7 +302,6 @@ void startDSRTask(void const * argument)
 	    	  {
 	    		  g_state = (g_state | 0b001000) & ~0b000100;
 	    		  foundTrigger = 0;
-	    		  plot_drawCoordSystem();
 	    	  }
 	    	  break;
 	      case TLevelRise:
@@ -312,7 +309,6 @@ void startDSRTask(void const * argument)
 	    	  {
 	    		  g_state = (g_state | 0b010000) & ~0b100000;
 	    		  foundTrigger = 0;
-	    		  plot_drawCoordSystem();
 	    	  }
 	    	  break;
 	      case TLevelFall:
@@ -320,11 +316,15 @@ void startDSRTask(void const * argument)
 	    	  {
 	    		  g_state = (g_state | 0b100000) & ~0b010000;
 	    		  foundTrigger = 0;
-	    		  plot_drawCoordSystem();
 	    	  }
 	    	  break;
 	      default:
 	    	  break;
+	      }
+
+	      if (prevState != g_state)
+	      {
+	    	  plot_drawCoordSystem();
 	      }
 	    }
 	  }
