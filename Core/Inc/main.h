@@ -35,28 +35,7 @@ extern "C" {
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
-/* USER CODE BEGIN ET */
-enum ClickAction
-{
-	DisplayTime = (1 << 1),
-	DisplayPDS  = (1 << 2),
-	TriggerOn   = (1 << 3),
-	TriggerOff  = (1 << 4),
-	TLevelRise  = (1 << 5),
-	TLevelFall  = (1 << 6),
-	Invalid     = 0x00,
-};
-
-enum AppState
-{
-	PDSState                = 0b011010,
-	TimeNoTriggerState      = 0b011001,
-	TimeTriggerRisingState  = 0b010101,
-	TimeTriggerFallingState = 0b100101,
-};
-
-extern enum AppState g_state;
-/* USER CODE END ET */
+extern ADC_HandleTypeDef hadc1;
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
@@ -71,9 +50,6 @@ extern enum AppState g_state;
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
-/* USER CODE BEGIN EFP */
-
-/* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
 #define PC14_OSC32_IN_Pin GPIO_PIN_14
@@ -261,11 +237,6 @@ void Error_Handler(void);
 #define NBL1_Pin GPIO_PIN_1
 #define NBL1_GPIO_Port GPIOE
 
-/* USER CODE BEGIN Private defines */
-#define PDS_LENGTH 32
-#define TIME_DOMAIN_LENGTH 64
-#define TRIGGER_LEVEL 2048
-/* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }

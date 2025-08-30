@@ -4,7 +4,7 @@
  */
 
 #include <assert.h>
-#include "main.h"
+#include "tasks.h"
 #include "screen.h"
 #include "plot.h"
 #include "../../Drivers/BSP/STM32F429I-Discovery/stm32f429i_discovery_lcd.h"
