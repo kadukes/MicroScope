@@ -12,6 +12,11 @@
 #define max(a, b) (a >= b ? a : b)
 
 /**
+ * \brief Draws a fresh background into the framebuffer
+ */
+void plot_drawCoordSystem(void);
+
+/**
  * \brief Plots a <b>time signal</b> of given length to framebuffer
  *
  * @param data  A pointer of data values
