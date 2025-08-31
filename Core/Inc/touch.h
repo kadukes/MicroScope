@@ -18,17 +18,6 @@ enum ClickAction
 	Invalid     = 0x00,
 };
 
-enum AppState
-{
-	PDSState                = 0b011010,
-	TimeNoTriggerState      = 0b011001,
-	TimeTriggerRisingState  = 0b010101,
-	TimeTriggerFallingState = 0b100101,
-};
-
-extern enum AppState g_state;
-extern uint8_t g_foundTrigger;
-
 /* Exported functions prototypes ---------------------------------------------*/
 /**
  * Setup all necessary tasks for touch controller interaction

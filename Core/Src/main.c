@@ -93,6 +93,7 @@ int main(void)
   /* Setup and start scheduler */
   setupTasks();
   setupTouch();
+  setupState();
   osKernelStart();
 
   /* We should never get here as control is now taken by the scheduler */

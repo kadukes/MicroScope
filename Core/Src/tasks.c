@@ -13,6 +13,7 @@
 #include "fft.h"
 #include "plot.h"
 #include "touch.h"
+#include "state.h"
 
 /* Private variables ---------------------------------------------------------*/
 osThreadId samplingTaskHandle;
@@ -113,15 +114,15 @@ void startTriggerTask(void const * argument)
 	uint8_t prev_pos = (s_position + TIME_DOMAIN_LENGTH - 32) % TIME_DOMAIN_LENGTH;
 	uint8_t current_pos = (s_position + TIME_DOMAIN_LENGTH - 31) % TIME_DOMAIN_LENGTH;
 
-	if (g_state & 0b000001 && g_state & 0b000100)  // display in time domain and trigger enabled
+	if (isTimeDomain() && isTriggerEnabled())  // display in time domain and trigger enabled
 	{
-		if (g_state & 0b010000 && s_time_domain[prev_pos] < TRIGGER_LEVEL && s_time_domain[current_pos] >= TRIGGER_LEVEL)
+		if (isTriggerRising() && s_time_domain[prev_pos] < TRIGGER_LEVEL && s_time_domain[current_pos] >= TRIGGER_LEVEL)
 		{
 			// rising edge
 			g_foundTrigger = 1;
 			xTaskNotifyGive(triggerVisualizationHandle);
 		}
-		else if (g_state & 0b100000 && s_time_domain[prev_pos] > TRIGGER_LEVEL && s_time_domain[current_pos] <= TRIGGER_LEVEL)
+		else if (isTriggerFalling() && s_time_domain[prev_pos] > TRIGGER_LEVEL && s_time_domain[current_pos] <= TRIGGER_LEVEL)
 		{
 			// falling edge
 			g_foundTrigger = 1;
@@ -166,11 +167,11 @@ void startTimeDomainVisualizationTask(void const * argument)
 
   for(;;)
   {
-	if (g_state & 0b000100 && g_state & 0b000001 && g_foundTrigger)
+	if (isTriggerEnabled() && isTimeDomain() && g_foundTrigger)
 	{
 		plot(s_trigger, TIME_DOMAIN_LENGTH, LCD_COLOR_YELLOW, LCD_COLOR_BLACK);
 	}
-	else if (g_state & 0b000001 && !g_foundTrigger)
+	else if (isTimeDomain() && !g_foundTrigger)
 	{
 		plot(s_time_domain, TIME_DOMAIN_LENGTH, LCD_COLOR_YELLOW, LCD_COLOR_BLACK);
 	}
@@ -193,7 +194,7 @@ void startPdsVisualization(void const * argument)
 
   for(;;)
   {
-	if (g_state & 0b000010)
+	if (isFrequencyDomain())
 	{
 		plot_pds(s_frequency_domain, PDS_LENGTH, LCD_COLOR_YELLOW, LCD_COLOR_BLACK);
 	}

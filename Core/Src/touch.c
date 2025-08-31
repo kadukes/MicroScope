@@ -15,16 +15,12 @@
 /* Private variables ---------------------------------------------------------*/
 osThreadId DSRTaskHandle;
 osMessageQId DSRQueueHandle;
-enum AppState g_state;
-uint8_t g_foundTrigger = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 void startDSRTask(void const * argument);
 
 void setupTouch()
 {
-	g_state = TimeNoTriggerState;
-
 	/* Create the queue(s) */
 	/* definition and creation of DSRQueue */
 	osMessageQDef(DSRQueue, 16, sizeof(TS_StateTypeDef));
@@ -94,52 +90,9 @@ void startDSRTask(void const * argument)
 	  {
 		if (ts.TouchDetected)
 	    {
-	      enum ClickAction a = decode_click(ts.X, BSP_LCD_GetYSize() - ts.Y);
-	      enum AppState prevState = g_state;
-	      switch (a)
-	      {
-	      case DisplayTime:
-	    	  g_state = (g_state | 0b000001) & ~0b000010;
-	    	  break;
-	      case DisplayPDS:
-	    	  g_state = (g_state | 0b000010) & ~0b000001;
-	    	  g_foundTrigger = 0;
-	    	  break;
-	      case TriggerOn:
-	    	  if (g_state & 0b000001)  // g_state display time
-	    	  {
-	    		  g_state = (g_state | 0b000100) & ~0b001000;
-	    	  }
-	    	  break;
-	      case TriggerOff:
-	    	  if (g_state & 0b000001)  // g_state display time
-	    	  {
-	    		  g_state = (g_state | 0b001000) & ~0b000100;
-	    		  g_foundTrigger = 0;
-	    	  }
-	    	  break;
-	      case TLevelRise:
-	    	  if (g_state & 0b000001 && g_state & 0b000100)  // g_state display time with trigger
-	    	  {
-	    		  g_state = (g_state | 0b010000) & ~0b100000;
-	    		  g_foundTrigger = 0;
-	    	  }
-	    	  break;
-	      case TLevelFall:
-	    	  if (g_state & 0b000001 && g_state & 0b000100)  // g_state display time with trigger
-	    	  {
-	    		  g_state = (g_state | 0b100000) & ~0b010000;
-	    		  g_foundTrigger = 0;
-	    	  }
-	    	  break;
-	      default:
-	    	  break;
-	      }
-
-	      if (prevState != g_state)
-	      {
-	    	  plot_drawCoordSystem();
-	      }
+	      enum ClickAction a = decode_click(ts.X, 320 - ts.Y);
+	      // BSP_LCD_DrawPixel(ts.X, 320 - ts.Y, LCD_COLOR_WHITE);
+	      updateState(a);
 	    }
 	  }
   }

@@ -8,6 +8,7 @@
 #include "screen.h"
 #include "plot.h"
 #include "touch.h"
+#include "state.h"
 #include "../../Drivers/BSP/STM32F429I-Discovery/stm32f429i_discovery_lcd.h"
 
 void clearPixel(uint16_t x, uint16_t y)
@@ -29,7 +30,7 @@ void clearPixel(uint16_t x, uint16_t y)
 		color = LCD_COLOR_BLUE;
 		break;
 	case 4:  // signal box
-		if (g_state & 0b000001)
+		if (isTimeDomain())
 		{
 			color = LCD_COLOR_LIGHTMAGENTA;
 		}
@@ -39,7 +40,7 @@ void clearPixel(uint16_t x, uint16_t y)
 		}
 		break;
 	case 5:  // pds box
-		if (g_state & 0b000010)
+		if (isFrequencyDomain())
 		{
 			color = LCD_COLOR_LIGHTMAGENTA;
 		}
@@ -49,7 +50,7 @@ void clearPixel(uint16_t x, uint16_t y)
 		}
 		break;
 	case 6:  // trigger box
-		if (g_state & 0b000010)
+		if (isFrequencyDomain())
 		{
 			color = LCD_COLOR_GRAY;
 		}
@@ -59,11 +60,11 @@ void clearPixel(uint16_t x, uint16_t y)
 		}
 		break;
 	case 7:  // on box
-		if (g_state & 0b000010)
+		if (isFrequencyDomain())
 		{
 			color = LCD_COLOR_GRAY;
 		}
-		else if (g_state & 0b000100)
+		else if (isTriggerEnabled())
 		{
 			color = LCD_COLOR_LIGHTMAGENTA;
 		}
@@ -73,11 +74,11 @@ void clearPixel(uint16_t x, uint16_t y)
 		}
 		break;
 	case 8:  // off box
-		if (g_state & 0b000010)
+		if (isFrequencyDomain())
 		{
 			color = LCD_COLOR_GRAY;
 		}
-		else if (g_state & 0b001000)
+		else if (isTriggerDisabled())
 		{
 			color = LCD_COLOR_LIGHTMAGENTA;
 		}
@@ -87,7 +88,7 @@ void clearPixel(uint16_t x, uint16_t y)
 		}
 		break;
 	case 9:  // tlevel box
-		if (g_state & 0b000010 || g_state & 0b001000)
+		if (isFrequencyDomain() || isTriggerDisabled())
 		{
 			color = LCD_COLOR_GRAY;
 		}
@@ -97,11 +98,11 @@ void clearPixel(uint16_t x, uint16_t y)
 		}
 		break;
 	case 10:  // rise box
-		if (g_state & 0b000010 || g_state & 0b001000)
+		if (isFrequencyDomain() || isTriggerDisabled())
 		{
 			color = LCD_COLOR_GRAY;
 		}
-		else if (g_state & 0b010000)
+		else if (isTriggerRising())
 		{
 			color = LCD_COLOR_LIGHTMAGENTA;
 		}
@@ -111,11 +112,11 @@ void clearPixel(uint16_t x, uint16_t y)
 		}
 		break;
 	case 11:  // fall box
-		if (g_state & 0b000010 || g_state & 0b001000)
+		if (isFrequencyDomain() || isTriggerDisabled())
 		{
 			color = LCD_COLOR_GRAY;
 		}
-		else if (g_state & 0b100000)
+		else if (isTriggerFalling())
 		{
 			color = LCD_COLOR_LIGHTMAGENTA;
 		}
