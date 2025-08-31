@@ -6,30 +6,26 @@
 /* Includes ------------------------------------------------------------------*/
 #include "cmsis_os.h"
 #include "../../Drivers/BSP/STM32F429I-Discovery/stm32f429i_discovery_lcd.h"
-#include "../../Drivers/BSP/STM32F429I-Discovery/stm32f429i_discovery_ts.h"
 
 /* Private includes ----------------------------------------------------------*/
 #include "main.h"
 #include "tasks.h"
 #include "fft.h"
 #include "plot.h"
+#include "touch.h"
 
 /* Private variables ---------------------------------------------------------*/
 osThreadId samplingTaskHandle;
 osThreadId triggerTaskHandle;
 osThreadId analysisTaskHandle;
-osThreadId timeDomainVisuaHandle;
-osThreadId pdsVisualizatioHandle;
-osThreadId DSRTaskHandle;
-osThreadId triggerVisualizHandle;
-osMessageQId DSRQueueHandle;
+osThreadId timeDomainVisualizationHandle;
+osThreadId pdsVisualizationHandle;
+osThreadId triggerVisualizationHandle;
 
 static uint32_t s_time_domain[TIME_DOMAIN_LENGTH];
 static uint32_t s_trigger[TIME_DOMAIN_LENGTH];
 static float s_frequency_domain[PDS_LENGTH];
 static uint8_t s_position = 0;
-enum AppState g_state;
-static uint8_t foundTrigger = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 void startSamplingTask(void const * argument);
@@ -37,22 +33,13 @@ void startTriggerTask(void const * argument);
 void startAnalysisTask(void const * argument);
 void startTimeDomainVisualizationTask(void const * argument);
 void startPdsVisualization(void const * argument);
-void startDSRTask(void const * argument);
 void startTriggerVisualization(void const * argument);
 
 void setupTasks()
 {
-	g_state = TimeNoTriggerState;
-
 	/* add mutexes, ... */
 	/* add semaphores, ... */
 	/* start timers, add new ones, ... */
-
-	/* Create the queue(s) */
-	/* definition and creation of DSRQueue */
-	osMessageQDef(DSRQueue, 16, uint64_t);
-	DSRQueueHandle = osMessageCreate(osMessageQ(DSRQueue), NULL);
-
 	/* add queues, ... */
 
 	/* Create the thread(s) */
@@ -70,69 +57,20 @@ void setupTasks()
 
 	/* definition and creation of timeDomainVisualization */
 	osThreadDef(timeDomainVisualization, startTimeDomainVisualizationTask, osPriorityNormal, 0, 1024);
-	timeDomainVisuaHandle = osThreadCreate(osThread(timeDomainVisualization), NULL);
+	timeDomainVisualizationHandle = osThreadCreate(osThread(timeDomainVisualization), NULL);
 
 	/* definition and creation of pdsVisualization */
 	osThreadDef(pdsVisualization, startPdsVisualization, osPriorityNormal, 0, 1024);
-	pdsVisualizatioHandle = osThreadCreate(osThread(pdsVisualization), NULL);
-
-	/* definition and creation of DSRTask */
-	osThreadDef(DSRTask, startDSRTask, osPriorityAboveNormal, 0, 1024);
-	DSRTaskHandle = osThreadCreate(osThread(DSRTask), NULL);
+	pdsVisualizationHandle = osThreadCreate(osThread(pdsVisualization), NULL);
 
 	/* definition and creation of triggerVisualization */
 	osThreadDef(triggerVisualizationTask, startTriggerVisualization, osPriorityHigh, 0, 1024);
-	triggerVisualizHandle = osThreadCreate(osThread(triggerVisualizationTask), NULL);
+	triggerVisualizationHandle = osThreadCreate(osThread(triggerVisualizationTask), NULL);
 
 	/* add threads, ... */
 
 	/* further initialization */
 	plot_drawCoordSystem();
-}
-
-
-void handleTouchInterrupt()
-{
-	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    TS_StateTypeDef ts;
-    BSP_TS_GetState(&ts);
-    xQueueSendFromISR(DSRQueueHandle, &ts, &xHigherPriorityTaskWoken);
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-
-    // Clear interrupt inside FT5336 controller
-    BSP_TS_ITClear();
-}
-
-enum ClickAction decode_click(uint16_t x, uint16_t y)
-{
-	if (x >= 220)
-	{
-		if (y >= 50 && y <= 85)
-		{
-			return DisplayTime;
-		}
-		if (y >= 85 && y <= 110)
-		{
-			return DisplayPDS;
-		}
-		if (y >= 165 && y <= 185)
-		{
-			return TriggerOn;
-		}
-		if (y >= 185 && y <= 210)
-		{
-			return TriggerOff;
-		}
-		if (y >= 260 && y <= 290)
-		{
-			return TLevelRise;
-		}
-		if (y >= 290)
-		{
-			return TLevelFall;
-		}
-	}
-	return Invalid;
 }
 
 
@@ -180,14 +118,14 @@ void startTriggerTask(void const * argument)
 		if (g_state & 0b010000 && s_time_domain[prev_pos] < TRIGGER_LEVEL && s_time_domain[current_pos] >= TRIGGER_LEVEL)
 		{
 			// rising edge
-			foundTrigger = 1;
-			xTaskNotifyGive(triggerVisualizHandle);
+			g_foundTrigger = 1;
+			xTaskNotifyGive(triggerVisualizationHandle);
 		}
 		else if (g_state & 0b100000 && s_time_domain[prev_pos] > TRIGGER_LEVEL && s_time_domain[current_pos] <= TRIGGER_LEVEL)
 		{
 			// falling edge
-			foundTrigger = 1;
-			xTaskNotifyGive(triggerVisualizHandle);
+			g_foundTrigger = 1;
+			xTaskNotifyGive(triggerVisualizationHandle);
 		}
 	}
 
@@ -228,11 +166,11 @@ void startTimeDomainVisualizationTask(void const * argument)
 
   for(;;)
   {
-	if (g_state & 0b000100 && g_state & 0b000001 && foundTrigger)
+	if (g_state & 0b000100 && g_state & 0b000001 && g_foundTrigger)
 	{
 		plot(s_trigger, TIME_DOMAIN_LENGTH, LCD_COLOR_YELLOW, LCD_COLOR_BLACK);
 	}
-	else if (g_state & 0b000001 && !foundTrigger)
+	else if (g_state & 0b000001 && !g_foundTrigger)
 	{
 		plot(s_time_domain, TIME_DOMAIN_LENGTH, LCD_COLOR_YELLOW, LCD_COLOR_BLACK);
 	}
@@ -261,73 +199,6 @@ void startPdsVisualization(void const * argument)
 	}
 
     vTaskDelayUntil(&xLastWakeTime, xPeriod);
-  }
-}
-
-
-/**
-* @brief Function implementing the DSRTask thread.
-* @param argument: Not used
-* @retval None
-*/
-void startDSRTask(void const * argument)
-{
-  TS_StateTypeDef ts;
-
-  for(;;)
-  {
-	  if (xQueueReceive(DSRQueueHandle, &ts, portMAX_DELAY) == pdTRUE)
-	  {
-		if (ts.TouchDetected)
-	    {
-	      enum ClickAction a = decode_click(ts.X, 320 - ts.Y);
-	      enum AppState prevState = g_state;
-	      switch (a)
-	      {
-	      case DisplayTime:
-	    	  g_state = (g_state | 0b000001) & ~0b000010;
-	    	  break;
-	      case DisplayPDS:
-	    	  g_state = (g_state | 0b000010) & ~0b000001;
-	    	  foundTrigger = 0;
-	    	  break;
-	      case TriggerOn:
-	    	  if (g_state & 0b000001)  // g_state display time
-	    	  {
-	    		  g_state = (g_state | 0b000100) & ~0b001000;
-	    	  }
-	    	  break;
-	      case TriggerOff:
-	    	  if (g_state & 0b000001)  // g_state display time
-	    	  {
-	    		  g_state = (g_state | 0b001000) & ~0b000100;
-	    		  foundTrigger = 0;
-	    	  }
-	    	  break;
-	      case TLevelRise:
-	    	  if (g_state & 0b000001 && g_state & 0b000100)  // g_state display time with trigger
-	    	  {
-	    		  g_state = (g_state | 0b010000) & ~0b100000;
-	    		  foundTrigger = 0;
-	    	  }
-	    	  break;
-	      case TLevelFall:
-	    	  if (g_state & 0b000001 && g_state & 0b000100)  // g_state display time with trigger
-	    	  {
-	    		  g_state = (g_state | 0b100000) & ~0b010000;
-	    		  foundTrigger = 0;
-	    	  }
-	    	  break;
-	      default:
-	    	  break;
-	      }
-
-	      if (prevState != g_state)
-	      {
-	    	  plot_drawCoordSystem();
-	      }
-	    }
-	  }
   }
 }
 

@@ -7,6 +7,7 @@
 #include "tasks.h"
 #include "screen.h"
 #include "plot.h"
+#include "touch.h"
 #include "../../Drivers/BSP/STM32F429I-Discovery/stm32f429i_discovery_lcd.h"
 
 void clearPixel(uint16_t x, uint16_t y)
