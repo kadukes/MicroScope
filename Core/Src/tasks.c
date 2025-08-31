@@ -65,7 +65,7 @@ void setupTasks()
 	triggerTaskHandle = osThreadCreate(osThread(triggerTask), NULL);
 
 	/* definition and creation of analysisTask */
-	osThreadDef(analysisTask, startAnalysisTask, osPriorityBelowNormal, 0, 1024);
+	osThreadDef(analysisTask, startAnalysisTask, osPriorityNormal, 0, 1024);
 	analysisTaskHandle = osThreadCreate(osThread(analysisTask), NULL);
 
 	/* definition and creation of timeDomainVisualization */
@@ -73,7 +73,7 @@ void setupTasks()
 	timeDomainVisuaHandle = osThreadCreate(osThread(timeDomainVisualization), NULL);
 
 	/* definition and creation of pdsVisualization */
-	osThreadDef(pdsVisualization, startPdsVisualization, osPriorityBelowNormal, 0, 1024);
+	osThreadDef(pdsVisualization, startPdsVisualization, osPriorityNormal, 0, 1024);
 	pdsVisualizatioHandle = osThreadCreate(osThread(pdsVisualization), NULL);
 
 	/* definition and creation of DSRTask */
@@ -144,7 +144,7 @@ enum ClickAction decode_click(uint16_t x, uint16_t y)
   */
 void startSamplingTask(void const * argument)
 {
-  const TickType_t xPeriod = pdMS_TO_TICKS(4);
+  const TickType_t xPeriod = pdMS_TO_TICKS(1);
   TickType_t xLastWakeTime = xTaskGetTickCount();
 
   for(;;)
@@ -167,7 +167,7 @@ void startSamplingTask(void const * argument)
 */
 void startTriggerTask(void const * argument)
 {
-  const TickType_t xPeriod = pdMS_TO_TICKS(4);
+  const TickType_t xPeriod = pdMS_TO_TICKS(1);
   TickType_t xLastWakeTime = xTaskGetTickCount();
 
   for(;;)
@@ -204,7 +204,7 @@ void startTriggerTask(void const * argument)
 */
 void startAnalysisTask(void const * argument)
 {
-  const TickType_t xPeriod = pdMS_TO_TICKS(1000);
+  const TickType_t xPeriod = pdMS_TO_TICKS(33);
   TickType_t xLastWakeTime = xTaskGetTickCount();
 
   for(;;)
@@ -223,7 +223,7 @@ void startAnalysisTask(void const * argument)
 */
 void startTimeDomainVisualizationTask(void const * argument)
 {
-  const TickType_t xPeriod = pdMS_TO_TICKS(250);
+  const TickType_t xPeriod = pdMS_TO_TICKS(33);
   TickType_t xLastWakeTime = xTaskGetTickCount();
 
   for(;;)
@@ -250,7 +250,7 @@ void startTimeDomainVisualizationTask(void const * argument)
 */
 void startPdsVisualization(void const * argument)
 {
-  const TickType_t xPeriod = pdMS_TO_TICKS(1000);
+  const TickType_t xPeriod = pdMS_TO_TICKS(33);
   TickType_t xLastWakeTime = xTaskGetTickCount();
 
   for(;;)

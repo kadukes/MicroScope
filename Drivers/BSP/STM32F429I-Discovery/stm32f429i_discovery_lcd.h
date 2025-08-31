@@ -227,7 +227,7 @@ void    BSP_LCD_MspInit(void);
 /**
   * @}
   */
-#define MAX_PLOT_PIXELS 4096
+#define MAX_PLOT_PIXELS 8192
 extern Point plotPixels[MAX_PLOT_PIXELS];
 extern uint16_t plotPixelCount;
 
