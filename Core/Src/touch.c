@@ -11,6 +11,7 @@
 /* Private includes ----------------------------------------------------------*/
 #include "touch.h"
 #include "plot.h"
+#include "state.h"
 
 /* Private variables ---------------------------------------------------------*/
 osThreadId DSRTaskHandle;
@@ -23,7 +24,7 @@ void setupTouch()
 {
 	/* Create the queue(s) */
 	/* definition and creation of DSRQueue */
-	osMessageQDef(DSRQueue, 16, sizeof(TS_StateTypeDef));
+	osMessageQDef(DSRQueue, 16, uint64_t);
 	DSRQueueHandle = osMessageCreate(osMessageQ(DSRQueue), NULL);
 
 	/* definition and creation of DSRTask */
@@ -90,8 +91,7 @@ void startDSRTask(void const * argument)
 	  {
 		if (ts.TouchDetected)
 	    {
-	      enum ClickAction a = decode_click(ts.X, 320 - ts.Y);
-	      // BSP_LCD_DrawPixel(ts.X, 320 - ts.Y, LCD_COLOR_WHITE);
+	      enum ClickAction a = decode_click(ts.X, BSP_LCD_GetYSize() - ts.Y);
 	      updateState(a);
 	    }
 	  }

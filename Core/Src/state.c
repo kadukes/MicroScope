@@ -13,34 +13,35 @@ uint8_t g_foundTrigger = 0;
 void setupState(void)
 {
 	state = TimeNoTriggerState;
+	plot_drawCoordSystem();
 }
 
-bool isTimeDomain(void)
+uint8_t isTimeDomain(void)
 {
 	return state & 0b000001;
 }
 
-bool isFrequencyDomain(void)
+uint8_t isFrequencyDomain(void)
 {
 	return state & 0b000010;
 }
 
-bool isTriggerEnabled(void)
+uint8_t isTriggerEnabled(void)
 {
 	return state & 0b000100;
 }
 
-bool isTriggerDisabled(void)
+uint8_t isTriggerDisabled(void)
 {
 	return state & 0b001000;
 }
 
-bool isTriggerRising(void)
+uint8_t isTriggerRising(void)
 {
 	return state & 0b010000;
 }
 
-bool isTriggerFalling(void)
+uint8_t isTriggerFalling(void)
 {
 	return state & 0b100000;
 }

@@ -7,7 +7,6 @@
 #define INC_STATE_H_
 
 #include <stdint.h>
-#include <stdbool.h>
 
 #include "touch.h"
 
@@ -22,17 +21,19 @@ enum AppState
 
 extern uint8_t g_foundTrigger;
 
-bool isTimeDomain(void);
+void setupState(void);
 
-bool isFrequencyDomain(void);
+uint8_t isTimeDomain(void);
 
-bool isTriggerEnabled(void);
+uint8_t isFrequencyDomain(void);
 
-bool isTriggerDisabled(void);
+uint8_t isTriggerEnabled(void);
 
-bool isTriggerRising(void);
+uint8_t isTriggerDisabled(void);
 
-bool isTriggerFalling(void);
+uint8_t isTriggerRising(void);
+
+uint8_t isTriggerFalling(void);
 
 void updateState(enum ClickAction action);
 

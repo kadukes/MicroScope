@@ -69,9 +69,6 @@ void setupTasks()
 	triggerVisualizationHandle = osThreadCreate(osThread(triggerVisualizationTask), NULL);
 
 	/* add threads, ... */
-
-	/* further initialization */
-	plot_drawCoordSystem();
 }
 
 

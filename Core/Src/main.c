@@ -25,6 +25,7 @@
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
 #include "touch.h"
+#include "state.h"
 #include "../../Drivers/BSP/STM32F429I-Discovery/stm32f429i_discovery_lcd.h"
 #include "../../Drivers/BSP/STM32F429I-Discovery/stm32f429i_discovery_ts.h"
 /* USER CODE END Includes */
@@ -91,9 +92,9 @@ int main(void)
   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
   /* Setup and start scheduler */
+  setupState();
   setupTasks();
   setupTouch();
-  setupState();
   osKernelStart();
 
   /* We should never get here as control is now taken by the scheduler */
